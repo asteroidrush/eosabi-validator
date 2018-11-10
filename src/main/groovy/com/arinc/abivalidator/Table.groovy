@@ -10,7 +10,26 @@ class Table implements ValidateName {
     List<String> key_names
     List<String> key_types
 
-    static List<String> allowedKeyTypes = ["i64", "i128", "name"]
+    static List<String> allowedPrimaryKeyTypes = [
+            "i64",
+            "uint64",
+            "name",
+    ]
+
+    static List<String> allowedKeyTypes = [
+            "i64",
+            "i128",
+            "i256",
+            "float64",
+            "float128",
+            "sha256",
+            "ripemd160",
+            "name",
+
+            "uint64",
+            "uint128",
+            "uint256",
+    ]
 
     List<String> invalidKeyNames() {
         return key_names.findAll {!Abi.base32Validate(it)}
@@ -36,12 +55,12 @@ class Table implements ValidateName {
             errors << "Table '$name' contains invalid index types: $invalidKeyTypes"
         }
 
-        if(index_type != "i64") {
+        if(!allowedPrimaryKeyTypes.contains(index_type)) {
             errors << "Table '$name' has invalid index type: $index_type"
         }
 
-        if(key_types.size() > 0 && key_types[0] != "i64") {
-            errors << "Table '$name' has invalid first index type: ${key_names[0]}"
+        if(key_types.size() > 0 && !allowedPrimaryKeyTypes.contains(key_types[0])) {
+            errors << "Table '$name' has invalid first index type: ${key_types[0]}"
         }
 
         return errors

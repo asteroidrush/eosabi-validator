@@ -13,6 +13,10 @@ Made with [Groovy](http://groovy-lang.org/) and [Vaadin](https://vaadin.com/).
 3. Shows info about presented actions, structs, tables and types.
 4. Perfom basic checks that all tables and actions have corresponding structs and all used types definied in types section.
 
+* [Built-in types](https://github.com/EOSIO/eos/blob/master/libraries/chain/abi_serializer.cpp#L65-L103)
+* [Primary index types](https://github.com/EOSIO/eos/blob/master/plugins/chain_plugin/chain_plugin.cpp#L1116)
+* [Index types](https://github.com/EOSIO/eos/blob/master/plugins/chain_plugin/chain_plugin.cpp#L1120)
+
 ### WIP
 Validator may accept broken abi or find errors in correct file, please,
 create an [ISSUE](https://github.com/codename-art/eosabi-validator/issues/new) with examples.

@@ -6,9 +6,7 @@ package com.arinc.abivalidator
 class Abi {
 
     static List<String> defaultTypes = [
-            "name",
-            "string",
-            "asset",
+            "bool",
             "uint8",
             "uint16",
             "uint32",
@@ -18,7 +16,36 @@ class Abi {
             "int16",
             "int32",
             "int64",
-            "int128"
+            "int128",
+            "varint32",
+            "varuint32",
+
+            "float32",
+            "float64",
+            "float128",
+
+            "time_point",
+            "time_point_sec",
+            "block_timestamp_type",
+
+            "name",
+
+            "bytes",
+            "string",
+
+            "checksum160",
+            "checksum256",
+            "checksum512",
+
+            "public_key",
+            "signature",
+
+            "symbol",
+            "symbol_code",
+            "asset",
+            "extended_asset",
+
+
     ]
 
     static boolean base32Validate(String str) {
@@ -67,6 +94,10 @@ class Abi {
         return tables*.name
     }
 
+    List<String> getTableTypes() {
+        return tables*.type
+    }
+
     List<String> validate() {
         def errors = []
         def nonUniqueTypes = declaredTypes.groupBy { it }.findAll { it.value.size() > 1 }.keySet()
@@ -94,12 +125,12 @@ class Abi {
             errors << "Invalid action name: $invalidActionNames"
         }
 
-        def actionWithoutTypes = actionNames - structNames
+        def actionWithoutTypes = actionsTypes - structNames
         if (actionWithoutTypes) {
             errors << "Actions without corresponding types: $actionWithoutTypes"
         }
 
-        def tablesWithoutTypes = tableNames - structNames
+        def tablesWithoutTypes = tableTypes - structNames
         if (tablesWithoutTypes) {
             errors << "Tables without corresponding types: $tablesWithoutTypes"
         }
