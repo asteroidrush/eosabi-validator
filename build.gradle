@@ -1,0 +1,103 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.3.RELEASE'
+        vaadinPluginVersion = '1.3.1'
+    }
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("com.devsoap.plugin:gradle-vaadin-plugin:${vaadinPluginVersion}")
+//        classpath 'org.gretty:gretty:+'
+    }
+}
+
+apply plugin: 'groovy'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: "com.devsoap.plugin.vaadin"
+apply plugin: 'war'
+//apply plugin: 'org.gretty'
+
+ext {
+    ext {
+        groovyVersion = '2.5.3'
+        gradleWrapperVersion = '4.7'
+        vaadinVersion = '8.4.2'
+        vaadinSpringVersion = '3.0.0'
+        spockVersion = '1.1-groovy-2.4'
+    }
+    mainClassName = "app.Application" 
+}
+
+repositories {
+    jcenter()
+    maven { url 'https://maven.vaadin.com/vaadin-addons' }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// turn on for static compilation of all Groovy files
+// compileGroovy {
+//     groovyOptions.configurationScript = file("gradle/groovyOptions.groovy")
+// }
+
+jar {
+    baseName = 'app'
+    version = null // no version in the filename
+    manifest {
+        attributes 'Main-Class': mainClassName // Allow to run with `java -jar app.jar`
+    }
+}
+
+/*gretty {
+    httpPort = System.getenv('PORT') as Integer ?: 8080
+    servletContainer = 'jetty9'
+    contextPath = '/'
+}*/
+
+bootRun.systemProperties = System.properties // pass sysprops down to bootRun, so we can add them in configs in intellij
+
+vaadin {
+	vaadin.version = vaadinVersion
+	vaadinCompile.widgetset 'app' // name of the widgetset (see @Widgetset in the UI)
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+ext['groovy.version'] = groovyVersion
+
+dependencies {
+
+    compile("org.codehaus.groovy:groovy-all")
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-devtools')
+    // always exclude com.vaadin packages from deps
+    compile("com.vaadin:vaadin-spring-boot-starter:${vaadinSpringVersion}")
+    testCompile("org.spockframework:spock-core:${spockVersion}")
+
+    compile(group: "com.github.java-json-tools", name: "json-schema-validator", version: "2.2.10")
+    compile group: 'com.fasterxml.jackson.core', name: "jackson-databind", version: '2.9.7'
+
+}
+
+task stage(type: Copy, dependsOn: [clean, bootJar]) {
+    from jar.archivePath
+    into project.rootDir
+    rename {
+        'app.jar'
+    }
+}
+stage.mustRunAfter(clean)
+
+clean << {
+    project.file('app.jar').delete()
+}
